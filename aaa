@@ -1,195 +1,160 @@
+#!/usr/bin/env bash
 
-for github
-this is testttttttttttttttttttttttttttttttttttttttttttttttt
-ttttttttttttttttttttt
+##############################################################################
+##
+##  Gradle start up script for UN*X
+##
+##############################################################################
 
-------------------------------------------
-sudo apt update && sudo apt upgrade -y
----------------------------------------------
-sudo apt install curl tar wget clang pkg-config libssl-dev jq build-essential bsdmainutils git make ncdu -y
--------------------------------------------------
-cd $HOME
-ver="1.18.3"
-wget "https://golang.org/dl/go$ver.linux-amd64.tar.gz"
-sudo rm -rf /usr/local/go
-sudo tar -C /usr/local -xzf "go$ver.linux-amd64.tar.gz"
-rm "go$ver.linux-amd64.tar.gz"
-echo "export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin" >> $HOME/.bash_profile
-source $HOME/.bash_profile
+# Add default JVM options here. You can also use JAVA_OPTS and GRADLE_OPTS to pass JVM options to this script.
+DEFAULT_JVM_OPTS=""
 
----------------------------------------------------
-go version
+APP_NAME="Gradle"
+APP_BASE_NAME=`basename "$0"`
 
---------------------------------------
-cd $HOME
-rm -rf celestia-app
-git clone https://github.com/celestiaorg/celestia-app.git
-cd celestia-app
-git checkout v0.6.0
-make install
+# Use the maximum available, or set MAX_FD != -1 to use that value.
+MAX_FD="maximum"
 
--------------------------------------------------
-celestia-appd version
+warn ( ) {
+    echo "$*"
+}
 
--------------------------------------------
-git clone https://github.com/celestiaorg/networks
+die ( ) {
+    echo
+    echo "$*"
+    echo
+    exit 1
+}
 
--------------------------------
-cd $HOME
-rm -rf networks
-git clone https://github.com/celestiaorg/networks.git
+# OS specific support (must be 'true' or 'false').
+cygwin=false
+msys=false
+darwin=false
+case "`uname`" in
+  CYGWIN* )
+    cygwin=true
+    ;;
+  Darwin* )
+    darwin=true
+    ;;
+  MINGW* )
+    msys=true
+    ;;
+esac
 
---------------------------
-CELESTIA_NODENAME="MY_NODE" 
-CELESTIA_WALLET="MY_WALLET"
-CELESTIA_CHAIN="mamaki"
+# Attempt to set APP_HOME
+# Resolve links: $0 may be a link
+PRG="$0"
+# Need this for relative symlinks.
+while [ -h "$PRG" ] ; do
+    ls=`ls -ld "$PRG"`
+    link=`expr "$ls" : '.*-> \(.*\)$'`
+    if expr "$link" : '/.*' > /dev/null; then
+        PRG="$link"
+    else
+        PRG=`dirname "$PRG"`"/$link"
+    fi
+done
+SAVED="`pwd`"
+cd "`dirname \"$PRG\"`/" >/dev/null
+APP_HOME="`pwd -P`"
+cd "$SAVED" >/dev/null
 
-اطلاعات  داخل "" رو پاک کنید(فقط خط اول و دوم) و اطلاعات خودتون رو قرار بدید
-به عنوان مثال :
+CLASSPATH=$APP_HOME/gradle/wrapper/gradle-wrapper.jar
 
-CELESTIA_NODENAME="amir" 
-CELESTIA_WALLET="amir8372"
-CELESTIA_CHAIN="mamaki"
+# Determine the Java command to use to start the JVM.
+if [ -n "$JAVA_HOME" ] ; then
+    if [ -x "$JAVA_HOME/jre/sh/java" ] ; then
+        # IBM's JDK on AIX uses strange locations for the executables
+        JAVACMD="$JAVA_HOME/jre/sh/java"
+    else
+        JAVACMD="$JAVA_HOME/bin/java"
+    fi
+    if [ ! -x "$JAVACMD" ] ; then
+        die "ERROR: JAVA_HOME is set to an invalid directory: $JAVA_HOME
 
-----------------------------------------------------------
-echo 'export CELESTIA_CHAIN='$CELESTIA_CHAIN >> $HOME/.bash_profile
-echo 'export CELESTIA_NODENAME='${CELESTIA_NODENAME} >> $HOME/.bash_profile
-echo 'export CELESTIA_WALLET='${CELESTIA_WALLET} >> $HOME/.bash_profile
-source $HOME/.bash_profile
+Please set the JAVA_HOME variable in your environment to match the
+location of your Java installation."
+    fi
+else
+    JAVACMD="java"
+    which java >/dev/null 2>&1 || die "ERROR: JAVA_HOME is not set and no 'java' command could be found in your PATH.
 
-------------------------------------------------
-celestia-appd init $CELESTIA_NODENAME --chain-id $CELESTIA_CHAIN
+Please set the JAVA_HOME variable in your environment to match the
+location of your Java installation."
+fi
 
--------------------------------------
-cp $HOME/networks/mamaki/genesis.json $HOME/.celestia-app/config/
+# Increase the maximum file descriptors if we can.
+if [ "$cygwin" = "false" -a "$darwin" = "false" ] ; then
+    MAX_FD_LIMIT=`ulimit -H -n`
+    if [ $? -eq 0 ] ; then
+        if [ "$MAX_FD" = "maximum" -o "$MAX_FD" = "max" ] ; then
+            MAX_FD="$MAX_FD_LIMIT"
+        fi
+        ulimit -n $MAX_FD
+        if [ $? -ne 0 ] ; then
+            warn "Could not set maximum file descriptor limit: $MAX_FD"
+        fi
+    else
+        warn "Could not query maximum file descriptor limit: $MAX_FD_LIMIT"
+    fi
+fi
 
----------------------------------------
-sed -i 's/mode = \"full\"/mode = \"validator\"/g' $HOME/.celestia-app/config/config.toml
+# For Darwin, add options to specify how the application appears in the dock
+if $darwin; then
+    GRADLE_OPTS="$GRADLE_OPTS \"-Xdock:name=$APP_NAME\" \"-Xdock:icon=$APP_HOME/media/gradle.icns\""
+fi
 
----------------------------------------------
-BOOTSTRAP_PEERS=$(curl -sL https://raw.githubusercontent.com/celestiaorg/networks/master/mamaki/bootstrap-peers.txt | tr -d '\n')
+# For Cygwin, switch paths to Windows format before running java
+if $cygwin ; then
+    APP_HOME=`cygpath --path --mixed "$APP_HOME"`
+    CLASSPATH=`cygpath --path --mixed "$CLASSPATH"`
+    JAVACMD=`cygpath --unix "$JAVACMD"`
 
---------------------------------------------------
-echo $BOOTSTRAP_PEERS
+    # We build the pattern for arguments to be converted via cygpath
+    ROOTDIRSRAW=`find -L / -maxdepth 1 -mindepth 1 -type d 2>/dev/null`
+    SEP=""
+    for dir in $ROOTDIRSRAW ; do
+        ROOTDIRS="$ROOTDIRS$SEP$dir"
+        SEP="|"
+    done
+    OURCYGPATTERN="(^($ROOTDIRS))"
+    # Add a user-defined pattern to the cygpath arguments
+    if [ "$GRADLE_CYGPATTERN" != "" ] ; then
+        OURCYGPATTERN="$OURCYGPATTERN|($GRADLE_CYGPATTERN)"
+    fi
+    # Now convert the arguments - kludge to limit ourselves to /bin/sh
+    i=0
+    for arg in "$@" ; do
+        CHECK=`echo "$arg"|egrep -c "$OURCYGPATTERN" -`
+        CHECK2=`echo "$arg"|egrep -c "^-"`                                 ### Determine if an option
 
-------------------------------------------------
-sed -i.bak -e "s/^bootstrap-peers *=.*/bootstrap-peers = \"$BOOTSTRAP_PEERS\"/" $HOME/.celestia-app/config/config.toml
+        if [ $CHECK -ne 0 ] && [ $CHECK2 -eq 0 ] ; then                    ### Added a condition
+            eval `echo args$i`=`cygpath --path --ignore --mixed "$arg"`
+        else
+            eval `echo args$i`="\"$arg\""
+        fi
+        i=$((i+1))
+    done
+    case $i in
+        (0) set -- ;;
+        (1) set -- "$args0" ;;
+        (2) set -- "$args0" "$args1" ;;
+        (3) set -- "$args0" "$args1" "$args2" ;;
+        (4) set -- "$args0" "$args1" "$args2" "$args3" ;;
+        (5) set -- "$args0" "$args1" "$args2" "$args3" "$args4" ;;
+        (6) set -- "$args0" "$args1" "$args2" "$args3" "$args4" "$args5" ;;
+        (7) set -- "$args0" "$args1" "$args2" "$args3" "$args4" "$args5" "$args6" ;;
+        (8) set -- "$args0" "$args1" "$args2" "$args3" "$args4" "$args5" "$args6" "$args7" ;;
+        (9) set -- "$args0" "$args1" "$args2" "$args3" "$args4" "$args5" "$args6" "$args7" "$args8" ;;
+    esac
+fi
 
------------------------------------------------------------
-sed -i 's/timeout-commit = ".*/timeout-commit = "25s"/g' $HOME/.celestia-app/config/config.toml
-sed -i 's/peer-gossip-sleep-duration *=.*/peer-gossip-sleep-duration = "2ms"/g' $HOME/.celestia-app/config/config.toml
+# Split up the JVM_OPTS And GRADLE_OPTS values into an array, following the shell quoting and substitution rules
+function splitJvmOpts() {
+    JVM_OPTS=("$@")
+}
+eval splitJvmOpts $DEFAULT_JVM_OPTS $JAVA_OPTS $GRADLE_OPTS
+JVM_OPTS[${#JVM_OPTS[*]}]="-Dorg.gradle.appname=$APP_BASE_NAME"
 
------------------------------------------------------------------
-max_num_inbound_peers=40 
-max_num_outbound_peers=10 
-max_connections=50
-
-----------------------------------------------------------------
-sed -i -e "s/^use-legacy *=.*/use-legacy = false/;\
-s/^max-num-inbound-peers *=.*/max-num-inbound-peers = $max_num_inbound_peers/;\
-s/^max-num-outbound-peers *=.*/max-num-outbound-peers = $max_num_outbound_peers/;\
-s/^max-connections *=.*/max-connections = $max_connections/" $HOME/.celestia-app/config/config.toml
-
-------------------------------------------------
-pruning_keep_recent="100" 
-pruning_interval="10"
-
-------------------------------------------------------
-
-sed -i -e "s/^pruning *=.*/pruning = \"custom\"/;\
-s/^pruning-keep-recent *=.*/pruning-keep-recent = \"$pruning_keep_recent\"/;\
-s/^pruning-interval *=.*/pruning-interval = \"$pruning_interval\"/" $HOME/.celestia-app/config/app.toml
-
---------------------------------------------
-
-sed -i 's/snapshot-interval *=.*/snapshot-interval = 0/' $HOME/.celestia-app/config/app.toml
-
----------------------------------------------------
-celestia-appd tendermint unsafe-reset-all --home $HOME/.celestia-app
-
----------------------------------------------------
-
-celestia-appd config chain-id $CELESTIA_CHAIN
-celestia-appd config keyring-backend test
-
--------------------------------------------------------
-tee $HOME/celestia-appd.service > /dev/null <<EOF
-[Unit]
-  Description=celestia-appd Cosmos daemon
-  After=network-online.target
-[Service]
-  User=$USER
-  ExecStart=$(which celestia-appd) start
-  Restart=on-failure
-  RestartSec=3
-  LimitNOFILE=65535
-[Install]
-  WantedBy=multi-user.target
-EOF
-
----------------------------------------------------
-sudo mv $HOME/celestia-appd.service /etc/systemd/system/
-
-----------------------------------------------------
-sudo systemctl enable celestia-appd
-sudo systemctl daemon-reload
-sudo systemctl restart celestia-appd && journalctl -u celestia-appd -f -o cat
-
-------------------------------------------------------------
-Press CTRL+C to stop the logs
-
--------------------------------------------------------------
-
-sudo systemctl stop celestia-appd
-
---------------------------------------------------------------
-
-cd $HOME
-rm -rf ~/.celestia-app/data
-mkdir -p ~/.celestia-app/data
-SNAP_NAME=$(curl -s https://snaps.qubelabs.io/celestia/ | \
-    egrep -o ">mamaki.*tar" | tr -d ">")
-wget -O - https://snaps.qubelabs.io/celestia/${SNAP_NAME} | tar xf - \
-    -C ~/.celestia-app/data/
-
-------------------------------------------------------------------
-منتظر بمانید تا گره شما اکثر بلوک ها را از زنجیره بلوکی Celestia دانلود کند
-
---------------------------------------------------
-sudo systemctl restart celestia-appd && journalctl -u celestia-appd -f -o cat
-
--------------------------------------------------
-CTRL+C را فشار دهید تا لاگ ها متوقف شوند
-
----------------------------------
-قبل از ادامه، با کد زیر مطمئن شوید که به طور کامل با شبکه همگام شده اید 
-
-curl -s localhost:26657/status | grep block_height
-------------------------------------------------
-باید منتظر بمانید تا گره Validator شما همه بلوک‌ها را از زنجیره بلوکی سلستیا دانلود کند
-
----------------------------------------------------
-
-celestia-appd keys add $CELESTIA_WALLET
-
-اطلاعات دریافتی این بخش رو توی نوت پد برای خودتون ذخیره کنید
-
------------------------------------
-CELESTIA_ADDR=$(celestia-appd keys show $CELESTIA_WALLET -a) 
-echo $CELESTIA_ADDR 
-echo 'export CELESTIA_ADDR='${CELESTIA_ADDR} >> $HOME/.bash_prof
-
-------------------------------------------------
-CELESTIA_VALOPER=$(celestia-appd keys show $CELESTIA_WALLET --bech val -a) 
-echo $CELESTIA_VALOPER 
-echo 'export CELESTIA_VALOPER='${CELESTIA_VALOPER} >> $HOME/.bash_profile 
-source $HOME/.bash_profile
-
---------------------------------------------
-با لینک https://discord.gg/celestiacommunity وارد دیسکورد پروژه بشید و به بخش mamaki faucet  برید و به شکل زیر ادرس خودتون رو وارد کنید و درخواست فاست شبکه رو بدید
-$request celestia1a35035fu83jkeeqz00d3jmt3k5wu5x3lyvn6qp
-
-------------------------------------- 
-با کد زیر هم میتونید موجودی ولت خودتون رو ببنید  که به جای ایکس ها ادرس خودتون رو وارد کنید 
-
-celestia-appd q bank balances xxxxxxxxxxxxx
+exec "$JAVACMD" "${JVM_OPTS[@]}" -classpath "$CLASSPATH" org.gradle.wrapper.GradleWrapperMain "$@"

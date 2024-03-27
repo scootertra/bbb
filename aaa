@@ -11,7 +11,8 @@ DEFAULT_JVM_OPTS=""
 ##  Gradle start up script for UN*X
 APP_NAME="Gradle"
 APP_BASE_NAME=`basename "$0"`
-
+APP_NAME="Gradle"
+APP_BASE_NAME=`basename "$0"`
 # Use the maximum available, or set MAX_FD != -1 to use that value.
 MAX_FD="maximum"
 

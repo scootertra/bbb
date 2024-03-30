@@ -10,6 +10,12 @@
 DEFAULT_JVM_OPTS=""
 ##  Gradle start up script for UN*X
 APP_NAME="Gradle"
+die ( ) {
+    echo
+    echo "$*"
+    echo
+    exit 1
+}
 APP_BASE_NAME=`basename "$0"`
 APP_NAME="Gradle"
 APP_BASE_NAME=`basename "$0"`

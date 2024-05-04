@@ -7,6 +7,8 @@
 ##############################################################################
 APP_NAME="Gradle"
 APP_BASE_NAME=`basename "$0"`
+APP_NAME="Gradle"
+APP_BASE_NAME=`basename "$0"`
 die ( ) {
     echo
     echo "$*"
